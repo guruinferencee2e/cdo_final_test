@@ -1,0 +1,43 @@
+package com.amazonaws.guru.rules.securityrules.generic.java;
+ 
+ public class InsecureJwtParsingTestcases  {
+
+    public void parse_method_after_parseClaim_negative1() {
+        SecretKey secretKey = createSecretKey();
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token).getBody();
+
+        String jsonString = claims.getSubject();
+        if (StrUtil.isNotBlank(jsonString)) {
+            return JsonKit.parse(jsonString, HashMap.class);
+        }
+    }
+
+    public void other_class_parse_methods_negative() {
+        BackupArn backupArn = BackupArn.parser().parse(request.getCustomerResource());
+        verifyResourceRegion(backupArn);
+    }
+
+    public void correct_jwts_parsing_negative() {
+        String plainTextSigningKey = decryptedKeyCache.getUnchecked(kinesisAnalyticsAuthToken.getSecret());
+        Jwts.parser().setSigningKey(plainTextSigningKey).parseClaimsJws(kinesisAnalyticsAuthToken.getRawToken());
+    }
+
+    public void insecureJwtParsing_positive() {
+        String plainTextSigningKey = decryptedKeyCache.getUnchecked(kinesisAnalyticsAuthToken.getSecret());
+        Jwts.parser().setSigningKey(plainTextSigningKey).parse(kinesisAnalyticsAuthToken.getRawToken());
+    }
+
+    public void parser_used_after_instantiating_builder_positive() {
+        String secretFilePath = "/secrets/secret.file";
+        String jwsLicenseToken = readLicenseToken(secretFilePath);
+        JwtParser parser = Jwts.parserBuilder()
+                    .setSigningKey(readPublicKey())
+                    .build();
+        ObjectMapper mapper = new ObjectMapper();
+        String licenseJson;
+        licenseJson = mapper.writeValueAsString( parser.parse(jwsLicenseToken).getBody() );
+    }
+
+}
